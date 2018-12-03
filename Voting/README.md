@@ -335,3 +335,85 @@ A: Remove ./build
 ~~~ shell
 $rm -rf ./build/
 ~~~
+
+## Voting With Eveent ##
+
+Add Voting Contract with Event
+
+* VotingWithEvent.sol
+* 3_deploy_contract.js
+
+### Compile and Deploy ###
+
+~~~ js
+truffle(develop)> compile
+~~~
+
+~~~js
+Compiling ./contracts/VotingWithEvent.sol...
+Writing artifacts to ./build/contracts
+~~~
+
+~~~js
+truffle(develop)> migrate
+~~~
+
+~~~js
+Using network 'develop'.
+
+Running migration: 3_deploy_contract.js
+  Deploying VotingWithEvent...
+  ... 0x5c0415094a2f5d2c1ccabb7e5d95c3765c8f7600878bbc28dda1e5f93e144298
+  VotingWithEvent: 0xeec918d74c746167564401103096d45bbd494b74
+Saving successful migration to network...
+  ... 0xfff45ce040c034073ac3a3531c1b05d9e9a13a4d4e20f51b6fabff65a7c20f20
+Saving artifacts...
+~~~
+
+### Grant Voter ###
+
+~~~js
+truffle(develop)> VotingWithEvent.deployed().then(contract=>contract.grantRightToVote(web3.eth.accounts[1]));
+{ tx: '0x12745706290f3112dc8e722623e8a4f50c077fc6652dd1f8ba80b3a3faf8beb2',
+  receipt: 
+   { transactionHash: '0x12745706290f3112dc8e722623e8a4f50c077fc6652dd1f8ba80b3a3faf8beb2',
+     transactionIndex: 0,
+     blockHash: '0xf8a860f933eada4e26e33eb5eaa4640d89074aff85e82b27ded8b9f0732ec2c6',
+     blockNumber: 19,
+     gasUsed: 45106,
+     cumulativeGasUsed: 45106,
+     contractAddress: null,
+     logs: [ [Object] ],
+     status: '0x01',
+     logsBloom: '0x00000000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010080000000000000000000000000000000000000000000000000000000000000000000000' },
+  logs: 
+   [ { logIndex: 0,
+       transactionIndex: 0,
+       transactionHash: '0x12745706290f3112dc8e722623e8a4f50c077fc6652dd1f8ba80b3a3faf8beb2',
+       blockHash: '0xf8a860f933eada4e26e33eb5eaa4640d89074aff85e82b27ded8b9f0732ec2c6',
+       blockNumber: 19,
+       address: '0xeec918d74c746167564401103096d45bbd494b74',
+       type: 'mined',
+       event: 'eventGrantVoter',
+       args: [Object] } ] }
+
+truffle(develop)> VotingWithEvent.deployed().then(contract=>contract.grantRightToVote(web3.eth.accounts[2])).then(r=>r.logs.forEach(log=>console.log(log.args)));
+{ voter: '0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef' }
+~~~
+
+### Delegate ###
+
+~~~js
+truffle(develop)> VotingWithEvent.deployed().then(contract=>contract.delegateRightTo(web3.eth.accounts[1],{from:web3.eth.accounts[2]})).then(r=>r.logs.forEach(log=>console.log(log.args)));
+{ from: '0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef',
+  to: '0xf17f52151ebef6c7334fad080c5704d77216b732' }
+~~~
+
+### Vote ###
+
+~~~js
+truffle(develop)> VotingWithEvent.deployed().then(contract=>contract.vote(1, {from:web3.eth.accounts[1]})).then(r=>r.logs.forEach(log=>console.log(log.args)));
+{ voter: '0xf17f52151ebef6c7334fad080c5704d77216b732',
+  proposal: BigNumber { s: 1, e: 0, c: [ 1 ] },
+  count: BigNumber { s: 1, e: 0, c: [ 2 ] } }
+~~~
