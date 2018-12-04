@@ -308,34 +308,6 @@ Mike
 undefined
 ~~~
 
-## Incident ##
-
-Q: Attempting to run transaction which calls a contract function, but recipient address 0x8cdaf0cd259887258bc13a92c0a6da92698644c0 is not a contract address
-
-~~~ js
-truffle(develop)> migrate
-Using network 'develop'.
-
-Error: Attempting to run transaction which calls a contract function, but recipient address 0x8cdaf0cd259887258bc13a92c0a6da92698644c0 is not a contract address
-    at Object.InvalidResponse (/usr/local/lib/node_modules/truffle/build/webpack:/~/web3/lib/web3/errors.js:38:1)
-    at /usr/local/lib/node_modules/truffle/build/webpack:/~/web3/lib/web3/requestmanager.js:86:1
-    at /usr/local/lib/node_modules/truffle/build/webpack:/packages/truffle-provider/wrapper.js:134:1
-    at XMLHttpRequest.request.onreadystatechange (/usr/local/lib/node_modules/truffle/build/webpack:/~/web3/lib/web3/httpprovider.js:128:1)
-    at XMLHttpRequestEventTarget.dispatchEvent (/usr/local/lib/node_modules/truffle/build/webpack:/~/xhr2/lib/xhr2.js:64:1)
-    at XMLHttpRequest._setReadyState (/usr/local/lib/node_modules/truffle/build/webpack:/~/xhr2/lib/xhr2.js:354:1)
-    at XMLHttpRequest._onHttpResponseEnd (/usr/local/lib/node_modules/truffle/build/webpack:/~/xhr2/lib/xhr2.js:509:1)
-    at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/truffle/build/webpack:/~/xhr2/lib/xhr2.js:469:1)
-    at IncomingMessage.emit (events.js:165:20)
-    at endReadableNT (_stream_readable.js:1101:12)
-    at process._tickCallback (internal/process/next_tick.js:152:19)
-~~~
-
-A: Remove ./build
-
-~~~ shell
-$rm -rf ./build/
-~~~
-
 ## Voting With Eveent ##
 
 Add Voting Contract with Event
@@ -417,3 +389,111 @@ truffle(develop)> VotingWithEvent.deployed().then(contract=>contract.vote(1, {fr
   proposal: BigNumber { s: 1, e: 0, c: [ 1 ] },
   count: BigNumber { s: 1, e: 0, c: [ 2 ] } }
 ~~~
+
+## Testing with solidity ##
+
+* Add TestVoting.sol in test/
+* The file name must be prefix with "Test"
+* Test case name must be prefix with "test"
+* Test Hooks:
+  * beforeAll
+  * afterAll
+  * beforeEach
+  * afterEach
+
+~~~js
+truffle(develop)> test
+Using network 'develop'.
+
+Compiling ./contracts/Voting.sol...
+Compiling ./test/TestVoting.sol...
+Compiling truffle/Assert.sol...
+Compiling truffle/DeployedAddresses.sol...
+
+
+  TestVoting
+    ✓ testChairman (66ms)
+    ✓ testProposals (108ms)
+    ✓ testGrantVoter (70ms)
+
+
+  3 passing (828ms)
+~~~
+
+## Testing with JS ##
+
+Base on Mocha test framework
+
+~~~js
+truffle(develop)> test
+Using network 'develop'.
+
+Compiling ./contracts/Voting.sol...
+Compiling ./test/TestVoting.sol...
+Compiling truffle/Assert.sol...
+Compiling truffle/DeployedAddresses.sol...
+
+
+  TestVoting
+    ✓ testChairman (67ms)
+    ✓ testProposals (110ms)
+    ✓ testGrantVoter (55ms)
+
+  Contract: Voting
+    ✓ Chairman should be creator
+    ✓ Check First Proposals
+    ✓ Check Grant Voter
+
+
+  6 passing (1s)
+~~~
+
+## Incident ##
+
+Q: Attempting to run transaction which calls a contract function, but recipient address 0x8cdaf0cd259887258bc13a92c0a6da92698644c0 is not a contract address
+
+~~~ js
+truffle(develop)> migrate
+Using network 'develop'.
+
+Error: Attempting to run transaction which calls a contract function, but recipient address 0x8cdaf0cd259887258bc13a92c0a6da92698644c0 is not a contract address
+    at Object.InvalidResponse (/usr/local/lib/node_modules/truffle/build/webpack:/~/web3/lib/web3/errors.js:38:1)
+    at /usr/local/lib/node_modules/truffle/build/webpack:/~/web3/lib/web3/requestmanager.js:86:1
+    at /usr/local/lib/node_modules/truffle/build/webpack:/packages/truffle-provider/wrapper.js:134:1
+    at XMLHttpRequest.request.onreadystatechange (/usr/local/lib/node_modules/truffle/build/webpack:/~/web3/lib/web3/httpprovider.js:128:1)
+    at XMLHttpRequestEventTarget.dispatchEvent (/usr/local/lib/node_modules/truffle/build/webpack:/~/xhr2/lib/xhr2.js:64:1)
+    at XMLHttpRequest._setReadyState (/usr/local/lib/node_modules/truffle/build/webpack:/~/xhr2/lib/xhr2.js:354:1)
+    at XMLHttpRequest._onHttpResponseEnd (/usr/local/lib/node_modules/truffle/build/webpack:/~/xhr2/lib/xhr2.js:509:1)
+    at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/truffle/build/webpack:/~/xhr2/lib/xhr2.js:469:1)
+    at IncomingMessage.emit (events.js:165:20)
+    at endReadableNT (_stream_readable.js:1101:12)
+    at process._tickCallback (internal/process/next_tick.js:152:19)
+~~~
+
+A: Remove ./build
+
+~~~ shell
+$rm -rf ./build/
+~~~
+
+Q: This looks like an address but has an invalid checksum
+
+~~~js
+/Users/haimhuan/workspace/EthereumLab/Voting/test/TestVoting.sol:9:22: Warning: This looks like an address but has an invalid checksum. If this is not used as an address, please prepend '00'. Correct checksummed address: '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE'. For more information please see https://solidity.readthedocs.io/en/develop/types.html#address-literals
+    address voter1 = 0x5aeda56215b167893e80b4fe645ba6d5bab767de;
+                     ^----------------------------------------^
+~~~
+
+A: Fix checksum with web3
+Note the different case of letters
+
+~~~js
+web3.toChecksumAddress("0x5aeda56215b167893e80b4fe645ba6d5bab767de")
+"0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE"
+~~~
+
+## Reference ##
+
+* Test
+  * [Test-driven development with Solidity](https://michalzalecki.com/ethereum-test-driven-introduction-to-solidity/)
+  * [Truffle: Testing Smart Contracts](https://www.sitepoint.com/truffle-testing-smart-contracts/)
