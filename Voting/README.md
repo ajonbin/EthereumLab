@@ -494,6 +494,8 @@ web3.toChecksumAddress("0x5aeda56215b167893e80b4fe645ba6d5bab767de")
 
 ## Reference ##
 
+* Code
+  * [Solidity by Example](https://solidity.readthedocs.io/en/v0.5.0/solidity-by-example.html)
 * Test
   * [Test-driven development with Solidity](https://michalzalecki.com/ethereum-test-driven-introduction-to-solidity/)
   * [Truffle: Testing Smart Contracts](https://www.sitepoint.com/truffle-testing-smart-contracts/)
